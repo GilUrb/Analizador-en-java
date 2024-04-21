@@ -27,7 +27,7 @@ public class Analizador {
         JScrollPane scrollPaneTexto = new JScrollPane(funcion);
         scrollPaneTexto.setBounds(10, 40, 560, 250);
 
-        // Crear un botón
+        //botón
         JButton boton = new JButton("Analizar");
         boton.setBounds(10, 300, 100, 30);
 
