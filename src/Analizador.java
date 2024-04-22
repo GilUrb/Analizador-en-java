@@ -63,6 +63,7 @@ public class Analizador {
                 Pattern pattern = Pattern.compile("(\\b\\w+\\b)|(\\d+\\.\\d+|\\d+)|([()\\[\\]{}.,;:+\\-*/%=<>!]|==|!=|<=|>=|[#])");
                 Matcher matcher = pattern.matcher(textoIngresado);
                 int fila = 1;
+
                 int columna = 1;
 
                 while (matcher.find()) {
