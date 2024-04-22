@@ -11,7 +11,7 @@ public class Analizador {
     public static final String[] PALABRAS_RESERVADAS = {"if", "else", "elif", "while", "for", "def", "return", "print", "and", "or", "not", "in", "is", "True", "False", "None"};
 
     // Array que almacena todos los símbolos permitidos en Python
-    public static final String[] SIMBOLOS = {"(", ")", "[", "]", "{", "}", ",", ".", ":", ";", "+", "-", "*", "/", "%", "=", "==", "!=", "<", "<=", ">", ">=", "#"};
+    public static final String[] OPERADORES_ARITMETICOS = {"+", "-", "*", "/", "%"};
 
     public static void main(String[] args) {
         JFrame ventana = new JFrame("Analizador Léxico de Python");
@@ -59,24 +59,43 @@ public class Analizador {
                 String textoIngresado = funcion.getText();
                 ArrayList<Token> tokens = new ArrayList<>();
 
-                //
-                Pattern pattern = Pattern.compile("\\b\\w+\\b|[()\\[\\]{}.,;:+\\-*/%=<>!]|==|!=|<=|>=|[#]");
+                // Patrón para identificar los tokens
+                Pattern pattern = Pattern.compile("(\\b\\w+\\b)|(\\d+\\.\\d+|\\d+)|([()\\[\\]{}.,;:+\\-*/%=<>!]|==|!=|<=|>=|[#])");
                 Matcher matcher = pattern.matcher(textoIngresado);
                 int fila = 1;
                 int columna = 1;
+
                 while (matcher.find()) {
-                    String token = matcher.group();
+                    String token = matcher.group(1);
+                    if (token == null) {
+                        token = matcher.group(2);
+                    }
+                    if (token == null) {
+                        token = matcher.group(3);
+                    }
                     Token.Tipo tipo;
+
+                    // Actualizar la fila y la columna
+                    columna = getColumna(textoIngresado, matcher.start());
+                    fila = getFila(textoIngresado, matcher.start());
+
                     if (isPalabraReservada(token)) {
                         tipo = Token.Tipo.PALABRA_RESERVADA;
+                    } else if (isOperadorAritmetico(token)) {
+                        tipo = Token.Tipo.OPERADOR_ARITMETICO;
                     } else if (isSimbolo(token)) {
                         tipo = Token.Tipo.SIMBOLO;
                     } else {
-                        tipo = Token.Tipo.PALABRA;
-                        mostrarError("Palabra reservada desconocida: " + token);
+                        // Verificar si es un número entero o decimal
+                        if (token.matches("\\d+")) {
+                            tipo = Token.Tipo.NUMERO_ENTERO;
+                        } else if (token.matches("\\d+\\.\\d+")) {
+                            tipo = Token.Tipo.NUMERO_DECIMAL;
+                        } else {
+                            tipo = Token.Tipo.CADENA;
+                        }
                     }
                     tokens.add(new Token(token, tipo, fila, columna));
-                    columna += token.length();
                 }
 
                 // Agregar tokens a la tabla
@@ -98,21 +117,37 @@ public class Analizador {
         }
         return false;
     }
+
     private static boolean isSimbolo(String simbolo) {
-        for (String s : SIMBOLOS) {
+        for (String s : OPERADORES_ARITMETICOS) {
             if (simbolo.equals(s)) {
                 return true;
             }
         }
         return false;
     }
-    private static void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(null, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+
+    private static boolean isOperadorAritmetico(String operador) {
+        for (String op : OPERADORES_ARITMETICOS) {
+            if (operador.equals(op)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int getColumna(String texto, int indice) {
+        String[] lineas = texto.substring(0, indice).split("\n");
+        return lineas[lineas.length - 1].length() + 1;
+    }
+
+    private static int getFila(String texto, int indice) {
+        return texto.substring(0, indice).split("\n").length;
     }
 
     static class Token {
         enum Tipo {
-            PALABRA_RESERVADA, SIMBOLO, PALABRA
+            PALABRA_RESERVADA, SIMBOLO, CADENA, NUMERO_ENTERO, NUMERO_DECIMAL, OPERADOR_ARITMETICO
         }
 
         private final String valor;
