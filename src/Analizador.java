@@ -27,7 +27,7 @@ public class Analizador {
         JScrollPane scrollPaneTexto = new JScrollPane(funcion);
         scrollPaneTexto.setBounds(10, 40, 560, 250);
 
-        //botón
+
         JButton boton = new JButton("Analizar");
         boton.setBounds(10, 300, 100, 30);
 
@@ -63,7 +63,6 @@ public class Analizador {
                 Pattern pattern = Pattern.compile("(\\b\\w+\\b)|(\\d+\\.\\d+|\\d+)|([()\\[\\]{}.,;:+\\-*/%=<>!]|==|!=|<=|>=|[#])");
                 Matcher matcher = pattern.matcher(textoIngresado);
                 int fila = 1;
-
                 int columna = 1;
 
                 while (matcher.find()) {
